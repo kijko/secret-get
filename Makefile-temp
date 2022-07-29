@@ -1,0 +1,11 @@
+.RECIPEPREFIX = _
+
+./build/secret-get : ./build/secret-get.o
+_ gcc ./build/secret-get.o -o ./build/secret-get
+
+./build/secret-get.o : ./src/main.c
+_ gcc -c -std=c17 -x c -Wextra -g ./src/main.c -o build/secret-get.o
+
+clean :
+_ rm -r build/*
+
