@@ -1,4 +1,5 @@
 .RECIPEPREFIX = _
+.DEFAULT_GOAL = build/target/SecretGet
 
 ifeq ($(OS),Windows_NT)
   ifeq ($(shell uname -s),) # not in a bash-like shell
@@ -17,6 +18,17 @@ endif
 
 .PHONY: clean
 .PHONY: test
+
+PATHTARGET = build/target
+
+$(PATHTARGET)/SecretGet : $(PATHTARGET)/SecretGet.o
+_ $(MKDIR) $(PATHTARGET)
+_ gcc $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
+
+$(PATHTARGET)/SecretGet.o : src/Main.c
+_ $(MKDIR) $(PATHTARGET)
+_ gcc -c -std=c17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
+
 
 PATHU = unity/src/
 PATHS = src/
@@ -84,6 +96,7 @@ clean:
 _ $(CLEANUP) $(PATHO)*.o
 _ $(CLEANUP) $(PATHB)*.$(TARGET_EXTENSION)
 _ $(CLEANUP) $(PATHR)*.txt
+_ $(CLEANUP) $(PATHTARGET)/*
 
 .PRECIOUS: $(PATHB)Test%.$(TARGET_EXTENSION)
 .PRECIOUS: $(PATHD)%.d

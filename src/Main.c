@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void some_fn() {
+void main() {
     printf("hello");
 }
 
