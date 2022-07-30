@@ -5,15 +5,18 @@ ifeq ($(OS),Windows_NT)
   ifeq ($(shell uname -s),) # not in a bash-like shell
 	CLEANUP = del /F /Q
 	MKDIR = mkdir
+    PRINT = dont know
   else # in a bash-like shell, like msys
 	CLEANUP = rm -f
 	MKDIR = mkdir -p
+    PRINT = echo
   endif
 	TARGET_EXTENSION=exe
 else
 	CLEANUP = rm -f
 	MKDIR = mkdir -p
 	TARGET_EXTENSION=out
+    PRINT = echo
 endif
 
 .PHONY: clean
@@ -23,11 +26,13 @@ PATHTARGET = build/target
 
 $(PATHTARGET)/SecretGet : $(PATHTARGET)/SecretGet.o
 _ $(MKDIR) $(PATHTARGET)
-_ gcc $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
+_ $(PRINT) "Linking...\n\n"
+_ gcc -v $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
 
 $(PATHTARGET)/SecretGet.o : src/Main.c
 _ $(MKDIR) $(PATHTARGET)
-_ gcc -c -std=c17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
+_ $(PRINT) "Compiling...\n\n"
+_ gcc -v -c -std=c17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
 
 
 PATHU = unity/src/
