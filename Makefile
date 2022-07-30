@@ -27,12 +27,12 @@ PATHTARGET = build/target
 $(PATHTARGET)/SecretGet : $(PATHTARGET)/SecretGet.o
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Linking...\n\n"
-_ gcc -v $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
+_ gcc $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
 
 $(PATHTARGET)/SecretGet.o : src/Main.c
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Compiling...\n\n"
-_ gcc -v -c -std=c17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
+_ gcc -c -std=gnu17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
 
 
 PATHU = unity/src/
