@@ -1,5 +1,9 @@
 .RECIPEPREFIX = _
-.DEFAULT_GOAL = build/target/SecretGet
+
+
+PATHTARGET = build/target
+
+.DEFAULT_GOAL = $(PATHTARGET)/SecretGet
 
 ifeq ($(OS),Windows_NT)
   ifeq ($(shell uname -s),) # not in a bash-like shell
@@ -22,17 +26,28 @@ endif
 .PHONY: clean
 .PHONY: test
 
-PATHTARGET = build/target
+PROJECT_SOURCE = src/Main.c src/State.c src/SecretGet.c
+PROJECT_OBJ = $(PATHTARGET)/Main.o $(PATHTARGET)/State.o $(PATHTARGET)/SecretGet.o
 
-$(PATHTARGET)/SecretGet : $(PATHTARGET)/SecretGet.o
+$(PATHTARGET)/SecretGet : $(PROJECT_OBJ)
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Linking...\n\n"
-_ gcc $(PATHTARGET)/SecretGet.o -o $(PATHTARGET)/SecretGet
+_ gcc $(PROJECT_OBJ) -o $(PATHTARGET)/SecretGet
 
-$(PATHTARGET)/SecretGet.o : src/Main.c
+$(PATHTARGET)/Main.o : src/Main.c
 _ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/SecretGet.o
+_ $(PRINT) "Compiling Main...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/Main.o
+
+$(PATHTARGET)/State.o : src/State.c
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling State...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g src/State.c -o $(PATHTARGET)/State.o
+
+$(PATHTARGET)/SecretGet.o : src/SecretGet.c
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling SecretGet...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g src/SecretGet.c -o $(PATHTARGET)/SecretGet.o
 
 
 PATHU = unity/src/
