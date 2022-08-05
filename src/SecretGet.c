@@ -1,5 +1,10 @@
 #include <stdio.h>
+
 #include "State.h"
+
+#include "SecretProvider.h"
+#include "Bitwarden.h"
+
 
 int findSecretAndAddToClipboard() {
     char *name = "unknown";

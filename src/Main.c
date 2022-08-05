@@ -2,13 +2,33 @@
 #include <argp.h>
 #include <string.h>
 
+#include "sglib.h"
+
 #include "State.h"
 #include "SecretGet.h"
+
+
 
 static int setStateDefaults();
 static int parseOptions(int key, char *arg, struct argp_state *state);
 
 int main(int argc, char **argv) {
+//      int i, ai,aj, n;
+//  int a[100];
+//
+//  // echo parameters using a queue
+//  SGLIB_QUEUE_INIT(int, a, ai, aj);
+//  for (i=1; i<argc; i++) {
+//	sscanf(argv[i],"%d", &n);
+//	SGLIB_QUEUE_ADD(int, a, n, ai, aj, 100);
+//  }
+//  while(! SGLIB_QUEUE_IS_EMPTY(int, a, ai, aj)) {
+//	printf("%d ", SGLIB_QUEUE_FIRST_ELEMENT(int, a, ai, aj));
+//	SGLIB_QUEUE_DELETE(int, a, ai, aj, 100);
+//  }
+//  printf("\n");
+
+
     int isSetup = init() + setStateDefaults();
 
     if (isSetup != 0) {
