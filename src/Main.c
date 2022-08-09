@@ -4,11 +4,9 @@
 
 #include "sglib.h"
 
-#include "State.h"
 #include "SecretGet.h"
 
-
-
+static struct SecretGetState *state;
 static int setStateDefaults();
 static int parseOptions(int key, char *arg, struct argp_state *state);
 
@@ -28,13 +26,18 @@ int main(int argc, char **argv) {
 //  }
 //  printf("\n");
 
-
-    int isSetup = init() + setStateDefaults();
-
-    if (isSetup != 0) {
-        printf("Non-zero status settings things up");
+    state = init();
+    if (state == NULL) {
+        printf("Error initializing state\n");
         
-        return isSetup;
+        return 1;
+    }
+
+    int defaultResult = setStateDefaults();
+    if (defaultResult != 0) {
+        printf("Non-zero status setting default state values\n");
+        
+        return defaultResult;
     }
 
     struct argp_option options[] = {
@@ -50,29 +53,41 @@ int main(int argc, char **argv) {
 
         return parseResult;
     }
+    
+    int searchResult;
+    if ((searchResult = findSecret(state)) != 0) {
+        printf("Non-zero(%d) search result. Exiting...\n", searchResult);
         
-    findSecretAndAddToClipboard();
+        return searchResult;
+    } 
 
-    cleanUp();
+    int copyResult;
+    if ((copyResult = copyToClipboard(state)) != 0) {
+        printf("Non-zero(%d) coping result. Exiting...\n", copyResult);
+        
+        return copyResult;
+    }
+
+    cleanUp(state);
 
     return 0;
 }
 
 static int setStateDefaults() {
-    return setStorage(STORAGE_BITWARDEN);
+    return setStorage(state, STORAGE_BITWARDEN);
 }
 
-static int parseOptions(int key, char *arg, struct argp_state *state) {
+static int parseOptions(int key, char *arg, struct argp_state *argpState) {
     switch (key) {
         case 's': {
             if (strcmp(arg, "BW") == 0) {
-                if (setStorage(STORAGE_BITWARDEN) != 0) {
+                if (setStorage(state, STORAGE_BITWARDEN) != 0) {
                     printf("Error setting bitwarden as storage");
                     
                     return ARGP_KEY_ERROR;
                 }
             } else if (strcmp(arg, "EL") == 0) {
-                if (setStorage(STORAGE_ELSE) != 0) {
+                if (setStorage(state, STORAGE_ELSE) != 0) {
                     printf("Error setting something else as storage");
                     
                     return ARGP_KEY_ERROR;

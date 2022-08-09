@@ -1,3 +1,5 @@
+#include "State.h"
 
-int findSecretAndAddToClipboard();
+int findSecret(struct SecretGetState *state);
+int copyToClipboard(struct SecretGetState *state);
 

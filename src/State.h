@@ -1,10 +1,17 @@
 #define STORAGE_BITWARDEN 1
 #define STORAGE_ELSE 2
 
-int init();
-int cleanUp();
+struct SecretGetState {
+    int storageKey;
+    char *secretName;
+};
 
-int getStorage();
-int setStorage(int storageKey);
-int setSecretName(char *secretName);
+struct SecretGetState * init();
+int cleanUp(struct SecretGetState *state);
+int getStorage(struct SecretGetState *state);
+int setStorage(struct SecretGetState *state, int storageKey);
 
+// copies string to state
+int setSecretName(struct SecretGetState *state, char *secretName);
+
+char * getSecretName(struct SecretGetState *state);

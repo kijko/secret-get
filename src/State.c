@@ -1,38 +1,37 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "State.h"
 
-struct SecretGetState {
-    int storageKey;
-    char *secretName;
-};
+#define SECRET_NAME_BUFFER_SIZE 130
 
-static struct SecretGetState *state;
-
-int init() {
-    state = (struct SecretGetState *) malloc(sizeof *state);
+struct SecretGetState * init() {
+    struct SecretGetState *state = 
+                (struct SecretGetState *) malloc(sizeof (struct SecretGetState));
+    state->secretName = (char *) malloc((sizeof (char)) * SECRET_NAME_BUFFER_SIZE);
     if (state == NULL) {
         printf("State::init - cannot allocate memory");
 
-        return 1;
+        return NULL;
     }
 
-    return 0;
+    return state;
 }
 
-int cleanUp() {
+int cleanUp(struct SecretGetState *state) {
+    free(state->secretName);
     free(state);
 
     return 0;
 }
 
-int getStorage() {
+int getStorage(struct SecretGetState *state) {
     return state->storageKey;
 }
 
-int setStorage(int storageKey) {
+int setStorage(struct SecretGetState *state, int storageKey) {
     if (
         storageKey == STORAGE_BITWARDEN
         || storageKey == STORAGE_ELSE
@@ -45,11 +44,21 @@ int setStorage(int storageKey) {
     return 1;
 }
 
-int setSecretName(char *secretName) {
+int setSecretName(struct SecretGetState *state, char *secretName) {
     if (secretName == NULL) return 1;
 
-    state->secretName = secretName;
+    char * result = strncpy(state->secretName, secretName, SECRET_NAME_BUFFER_SIZE - 1);
+    if (result == NULL) {
+        printf("State::setSecretName - cannot copy secret name");
+        
+        return 1;
+    }
 
     return 0;
 }
+
+char * getSecretName(struct SecretGetState *state) {
+    return state->secretName;
+}
+
 
