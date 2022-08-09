@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
          { "storage", 's', "ENUM", 0, "Choose storage. Supported: [BW, EL]. Default: BW", 0 },
          { 0 }
     };
-    struct argp argp = { options, parseOptions, 0, 0, 0, 0, 0 }; 
+    struct argp argp = { options, parseOptions, "secretNameRegex", 0, 0, 0, 0 }; 
 
     int parseResult = argp_parse(&argp, argc, argv, 0, 0, 0);
     
@@ -79,6 +79,14 @@ static int setStateDefaults() {
 
 static int parseOptions(int key, char *arg, struct argp_state *argpState) {
     switch (key) {
+        case 0: {
+            if (setSecretName(state, arg) != 0) {
+                printf("Error setting secret name regex\n");
+                
+                return ARGP_KEY_ERROR;
+            }
+            break;
+        }
         case 's': {
             if (strcmp(arg, "BW") == 0) {
                 if (setStorage(state, STORAGE_BITWARDEN) != 0) {

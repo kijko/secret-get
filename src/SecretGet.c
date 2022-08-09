@@ -14,7 +14,7 @@ int findSecret(struct SecretGetState *state) {
         case STORAGE_ELSE: { name = "Something Else"; break; }
     }
 
-    printf("find secret and add to clipboard for: %s\n", name);
+    printf("find secret '%s' in '%s'\n", state->secretName ,name);
 
     return 0;
 }

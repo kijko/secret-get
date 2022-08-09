@@ -47,6 +47,7 @@ int setStorage(struct SecretGetState *state, int storageKey) {
 int setSecretName(struct SecretGetState *state, char *secretName) {
     if (secretName == NULL) return 1;
 
+    // todo err on empty of blank
     char * result = strncpy(state->secretName, secretName, SECRET_NAME_BUFFER_SIZE - 1);
     if (result == NULL) {
         printf("State::setSecretName - cannot copy secret name");
