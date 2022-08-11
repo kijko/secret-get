@@ -1,30 +1,32 @@
 #include <stdio.h>
 
-#include "State.h"
-
 #include "sglib.h"
 
-#include "SecretProvider.h"
 #include "Bitwarden.h"
 
 int findSecret(struct SecretGetState *state) {
-    char *name = "unknown";
-
     switch (getStorage(state)) {
-        case STORAGE_BITWARDEN: { name = "Bitwarden"; break; }
-        case STORAGE_ELSE: { name = "Something Else"; break; }
+        case STORAGE_BITWARDEN: {
+            int searchResult;
+            if ((searchResult = searchInBitwarden(state)) != 0) {
+                printf("SecretGet::findSecret - Non-zero(%d) status searching in bitwarden", searchResult);
+
+                return searchResult;
+            }            
+
+            break; 
+        }
+        case STORAGE_ELSE: { 
+            printf("It's example storage. It doesnt work\n");
+
+            break; 
+        }
+        default: {
+            printf("SecretGet::findSecret - unknown storage\n");
+
+            return 3;
+        }
     }
-
-    printf("find secret '%s' in '%s'\n", state->secretName ,name);
-
-    addSecret(state, "some secret", "asdfasda");
-    addSecret(state, "my secret", "asdffff");
-    addSecret(state, "aaa", "poqpwe");
-
-    struct Secret *each;
-    SGLIB_LIST_MAP_ON_ELEMENTS(struct Secret, state->first, each, next, {
-        printf("name: %s value: %s\n", each->name, each->value); 
-    });
 
     return 0;
 }

@@ -26,8 +26,11 @@ endif
 .PHONY: clean
 .PHONY: test
 
-PROJECT_SOURCE = src/Main.c src/State.c src/SecretGet.c
-PROJECT_OBJ = $(PATHTARGET)/Main.o $(PATHTARGET)/State.o $(PATHTARGET)/SecretGet.o
+PROJECT_OBJ = $(PATHTARGET)/Main.o \
+              $(PATHTARGET)/State.o \
+              $(PATHTARGET)/SecretGet.o \
+              $(PATHTARGET)/Bitwarden.o
+
 
 $(PATHTARGET)/SecretGet : $(PROJECT_OBJ)
 _ $(MKDIR) $(PATHTARGET)
@@ -48,6 +51,12 @@ $(PATHTARGET)/SecretGet.o : src/SecretGet.c
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Compiling SecretGet...\n\n"
 _ gcc -c -std=gnu17 -x c -Wextra -g src/SecretGet.c -o $(PATHTARGET)/SecretGet.o
+
+$(PATHTARGET)/Bitwarden.o : src/Bitwarden.c
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling Bitwarden...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g src/Bitwarden.c -o $(PATHTARGET)/Bitwarden.o
+
 
 
 PATHU = unity/src/
