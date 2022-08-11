@@ -2,9 +2,10 @@
 
 #include "State.h"
 
+#include "sglib.h"
+
 #include "SecretProvider.h"
 #include "Bitwarden.h"
-
 
 int findSecret(struct SecretGetState *state) {
     char *name = "unknown";
@@ -15,6 +16,15 @@ int findSecret(struct SecretGetState *state) {
     }
 
     printf("find secret '%s' in '%s'\n", state->secretName ,name);
+
+    addSecret(state, "some secret", "asdfasda");
+    addSecret(state, "my secret", "asdffff");
+    addSecret(state, "aaa", "poqpwe");
+
+    struct Secret *each;
+    SGLIB_LIST_MAP_ON_ELEMENTS(struct Secret, state->first, each, next, {
+        printf("name: %s value: %s\n", each->name, each->value); 
+    });
 
     return 0;
 }

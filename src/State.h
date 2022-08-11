@@ -1,9 +1,16 @@
 #define STORAGE_BITWARDEN 1
 #define STORAGE_ELSE 2
 
+struct Secret {
+    char *name;
+    char *value;
+    struct Secret *next;
+};
+
 struct SecretGetState {
     int storageKey;
     char *secretName;
+    struct Secret *first;
 };
 
 struct SecretGetState * init();
@@ -15,3 +22,11 @@ int setStorage(struct SecretGetState *state, int storageKey);
 int setSecretName(struct SecretGetState *state, char *secretName);
 
 char * getSecretName(struct SecretGetState *state);
+
+// copies name, value strings
+int addSecret(
+        struct SecretGetState *state,
+        char *name,
+        char *value
+);
+
