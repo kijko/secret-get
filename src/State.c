@@ -109,7 +109,7 @@ int addSecret(
         return 4;
     }
 
-    char *copyValueResult = strncpy(elem->value, name, COMMON_STRING_BUFFER_SIZE - 1);
+    char *copyValueResult = strncpy(elem->value, value, COMMON_STRING_BUFFER_SIZE - 1);
     if (copyValueResult == NULL) {
         printf("State::addSecret - Cannot copy value");
 

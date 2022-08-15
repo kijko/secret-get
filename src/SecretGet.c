@@ -19,7 +19,7 @@ int findSecret(struct SecretGetState *state) {
         case STORAGE_ELSE: { 
             printf("It's example storage. It doesnt work\n");
 
-            break; 
+            return 4;
         }
         default: {
             printf("SecretGet::findSecret - unknown storage\n");
@@ -27,6 +27,16 @@ int findSecret(struct SecretGetState *state) {
             return 3;
         }
     }
+
+    struct Secret *each;
+    SGLIB_LIST_MAP_ON_ELEMENTS(
+        struct Secret,
+        state->first,
+        each,
+        next,
+        { printf("Secret [name=%s; value=%s]\n", each->name, each->value); }
+    );
+
 
     return 0;
 }

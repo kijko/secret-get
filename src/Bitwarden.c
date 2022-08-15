@@ -4,7 +4,9 @@
 
 
 int searchInBitwarden(struct SecretGetState *state) {
-    printf("searching bitwarden...\n");
+    addSecret(state, "bw-mock-secret-1", "asdfgh");
+    addSecret(state, "a-bw-mock-secret-2", "asdfghxxxxx");
+
     return 0;
 }
 
