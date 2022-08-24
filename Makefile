@@ -35,7 +35,7 @@ PROJECT_OBJ = $(PATHTARGET)/Main.o \
 $(PATHTARGET)/SecretGet : $(PROJECT_OBJ)
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Linking...\n\n"
-_ gcc $(PROJECT_OBJ) -o $(PATHTARGET)/SecretGet
+_ gcc $(PROJECT_OBJ) -lyajl -o $(PATHTARGET)/SecretGet
 
 $(PATHTARGET)/Main.o : src/Main.c
 _ $(MKDIR) $(PATHTARGET)
