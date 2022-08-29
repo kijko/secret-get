@@ -29,14 +29,41 @@ int findSecret(struct SecretGetState *state) {
     }
 
     struct Secret *each;
+    int i = 1;
     SGLIB_LIST_MAP_ON_ELEMENTS(
         struct Secret,
         state->first,
         each,
         next,
-        { printf("Secret [name=%s; value=%s]\n", each->name, each->value); }
+        { 
+            printf("%d. %s\n", i, each->name); 
+            i++;
+        }
     );
 
+    int choosen;
+    scanf("%d", &choosen);
+
+    if (choosen < 1 || choosen > i) {
+        printf("Not found\n");
+        
+        return 5;
+    }
+
+    i = 1;
+    SGLIB_LIST_MAP_ON_ELEMENTS(
+        struct Secret,
+        state->first,
+        each,
+        next,
+        { 
+            if (i == choosen) {
+               printf("Choosen: %s\n", each->name);
+            }
+
+            i++;
+        }
+    );
 
     return 0;
 }
