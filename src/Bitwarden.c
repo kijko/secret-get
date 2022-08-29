@@ -1,18 +1,66 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "yajl/yajl_tree.h"
 
 #include "Bitwarden.h"
 
+#define BW_BUFFER_SIZE 4 * 1024
+
 typedef struct { yajl_val *values; size_t len; } * YajlArray;
 typedef struct { const char **keys; yajl_val *values; size_t len;} * YajlObject;
 
-int searchInBitwarden(struct SecretGetState *state) {
-    const char *mock= "[{\"object\":\"item\",\"id\":\"31da44d1-5ef5-4540-841e-add801602f76\",\"organizationId\":null,\"folderId\":null,\"type\":1,\"reprompt\":0,\"name\":\"Google official\",\"notes\":null,\"favorite\":false,\"login\":{\"username\":\"hello1\",\"password\":\"tomato1\",\"totp\":null,\"passwordRevisionDate\":null},\"collectionIds\":[],\"revisionDate\":\"2021-11-06T21:22:16.066Z\",\"deletedDate\":null},{\"object\":\"item\",\"id\":\"c3bed220-2de0-4367-8c1a-ae4c015a2e4c\",\"organizationId\":null,\"folderId\":null,\"type\":1,\"reprompt\":0,\"name\":\"WikiGoogle\",\"notes\":null,\"favorite\":false,\"login\":{\"username\":\"hello2\",\"password\":\"tomato2\",\"totp\":null,\"passwordRevisionDate\":null},\"collectionIds\":[],\"revisionDate\":\"2022-03-02T21:00:24.350Z\",\"deletedDate\":null}]";
+int parseAndAddToState(const char *json, struct SecretGetState *state);
+int bwList(char *buff, int buffSize, char *secretName);
 
+int searchInBitwarden(struct SecretGetState *state) {
+    int returnCode = 0;
+
+    char *jsonStr = (char *) malloc(BW_BUFFER_SIZE);
+    
+    int listResult = bwList(jsonStr, BW_BUFFER_SIZE, getSecretName(state));
+    if (listResult == 0) {
+        int parseResult = parseAndAddToState(jsonStr, state);
+        
+        if (parseResult != 0) {
+            returnCode = 2;
+        }
+
+    } else {
+        returnCode = 1;
+    }
+    
+    free(jsonStr);
+
+    return returnCode;
+}
+
+int bwList(char *buff, int buffSize, char *secretName) {
+    char cmdBuff[160] = "\0";
+    
+    char *cmd = strncat(strcat(cmdBuff, "bw list items --search "), secretName, 128);
+    
+    FILE *fp;
+    if ((fp = (FILE *) popen(cmd, "r")) == NULL) {
+        printf("Error opening pipe!\n");
+        return 1;
+    }
+
+    while (fgets(buff, buffSize, fp) != NULL) {}
+
+    if (pclose(fp)) {
+        printf("Command not found or exited with error status\n");
+        return 2;
+    }
+
+    return 0;
+}
+
+
+int parseAndAddToState(const char *jsonStr, struct SecretGetState *state) {
     char errorBuffer[1024];
-    yajl_val json = yajl_tree_parse(mock, errorBuffer, sizeof (errorBuffer)); // size of is 1024?
+    yajl_val json = yajl_tree_parse(jsonStr, errorBuffer, sizeof (errorBuffer));
     int returnCode = 0;
     
     if (json != NULL) {
@@ -45,7 +93,6 @@ int searchInBitwarden(struct SecretGetState *state) {
             }
            
         } else {
-            // todo print error
             returnCode = 2;
         }
         
@@ -66,53 +113,5 @@ int searchInBitwarden(struct SecretGetState *state) {
     yajl_tree_free(json);
 
     return returnCode;
-//    yajl_val json;
-//    char errorBuffer[1024];
-//
-//    const char *mock = "{    \"BuildType\": \"ephemeral\",    \"DistServer\": \"http://browserplus.yahoo.com\",    \"SecondaryDistServers\": [      \"http://first.fictional.server\",      \"http://second.fictional.server\"    ],    \"Logging\" :    {        \"level\": \"BP_LOG_LEVEL\",        \"dest\": \"BP_LOG_DEST\",        \"layout\": \"standard\",        \"timeFormat\": \"utc\",        \"fileRolloverKB\": 2048,        \"serviceLogMode\": \"combined\"    },    \"Options\":\"\",    \"MaxIdleSecs\": 5,    \"UsageReporting\":    {       \"enabled\": true,       \"url\": false,       \"id\": true    },\"ServiceUpdatePollPeriod\": 86400} ";
-//    const char *mock2 = "{    \"secrets\": [ { \"name\": \"first\" }, { \"name\": \"second\" }] } ";
-//
-//    json = yajl_tree_parse((const char *) mock2, errorBuffer, sizeof(errorBuffer));
-//    if (json == NULL) {
-//        fprintf(stderr, "parse_error: ");
-//        if (strlen(errorBuffer)) fprintf(stderr, " %s", errorBuffer);
-//        else fprintf(stderr, "unknown error");
-//        fprintf(stderr, "\n");
-//        return 1;
-//    }
-
-//    {
-//        const char * path[] = { "secrets", (const char *) 0 };
-//        struct yajl_val_s *v = yajl_tree_get(json, path, yajl_t_array);
-//        //printf("isarray: %d\n", YAJL_IS_ARRAY(v));
-//        if (v) {
-//            struct { yajl_val *values; size_t len; } *arr;
-//            arr = YAJL_GET_ARRAY(v); 
-//            
-//            struct { 
-//                 const char **keys;
-//                 yajl_val *values;
-//                 size_t len;
-//             } *object;
-//            char *str;
-//            char secretName[2];
-//
-//            for (size_t i = 0; i < arr->len; i++) {
-//                object = YAJL_GET_OBJECT(arr->values[i]);
-//                str = YAJL_GET_STRING(object->values[0]);
-//                secretName[0] = i + '0';
-//                secretName[1] = '\0';
-//
-//                addSecret(state, secretName, str);
-//            }
-//
-//        } else {
-//            printf("no such node: %s/%s\n", path[0], path[1]);
-//
-//        }
-//    }
-
-
-//    return 0;
 }
 
