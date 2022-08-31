@@ -38,7 +38,7 @@ int searchInBitwarden(struct SecretGetState *state) {
 
 int bwList(char *buff, int buffSize, char *secretName) {
     char cmdBuff[160] = "\0";
-    
+        
     char *cmd = strncat(strcat(cmdBuff, "bw list items --search "), secretName, 128);
     
     FILE *fp;

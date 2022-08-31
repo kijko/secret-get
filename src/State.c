@@ -122,4 +122,23 @@ int addSecret(
     return 0;
 }
 
+int choose(struct SecretGetState *state, int index) {
+    if (index < 0) return 1;
+
+    int count = 0;
+    struct Secret *each;
+    SGLIB_LIST_MAP_ON_ELEMENTS(
+        struct Secret,
+        state->first,
+        each,
+        next,
+        { count++; }
+    );
+
+    if (index + 1 > count) return 2;
+
+    state->choosenIndex = index;
+
+    return 0;
+}
 

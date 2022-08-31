@@ -11,6 +11,7 @@ struct SecretGetState {
     int storageKey;
     char *secretName;
     struct Secret *first;
+    int choosenIndex;
 };
 
 struct SecretGetState * init();
@@ -29,4 +30,6 @@ int addSecret(
         char *name,
         char *value
 );
+
+int choose(struct SecretGetState *state, int index);
 
