@@ -79,13 +79,17 @@ int parseAndAddToState(const char *jsonStr, struct SecretGetState *state) {
 
                     const char *pwPath[] = { "login", "password", (const char *) 0 };
                     yajl_val pw = yajl_tree_get(item, pwPath, yajl_t_string); 
+                    
+                    const char *usernamePath[] = { "login", "username", (const char *) 0 };
+                    yajl_val username = yajl_tree_get(item, usernamePath, yajl_t_string);
 
                     if (name != NULL && pw != NULL) {
                         char *nameStr = YAJL_GET_STRING(name);
                         char *pwStr = YAJL_GET_STRING(pw);
+                        char *usernameStr = username != NULL ? YAJL_GET_STRING(username) : NULL;
 
                         if (nameStr != NULL && pwStr != NULL) {
-                            addSecret(state, nameStr, pwStr);
+                            addSecret(state, nameStr, pwStr, usernameStr);
                         }
                     }
                 }

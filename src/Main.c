@@ -48,7 +48,16 @@ int main(int argc, char **argv) {
         }
         
         return searchResult;
-    } 
+    } else {
+        struct Secret *choosenSecret = getChoosenSecret(state);
+        printf("Found secret: '%s'\n", choosenSecret->name);
+
+        if (strlen(choosenSecret->username) == 0) {
+            printf("No username\n");
+        } else {
+            printf("Username: %s\n", choosenSecret->username);
+        }
+    }
 
     int copyResult;
     if ((copyResult = copyToClipboard(state)) != 0) {

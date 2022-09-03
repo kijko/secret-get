@@ -63,9 +63,6 @@ int findSecret(struct SecretGetState *state) {
            return chooseFromMany(state); 
         } else {
            int chooseResult = choose(state, 0);
-           if (chooseResult == 0) {
-                printf("Found: '%s'\n", state->first->name);
-           }
            
            return chooseResult;
         }
@@ -114,11 +111,9 @@ int chooseFromMany(struct SecretGetState *state) {
         next,
         { 
             if (counter == choosen) {
-
                 chooseResult = choose(state, choosen - 1);
-                if (chooseResult == 0) printf("Found '%s'\n", each->name);
-
             }
+
             counter++;
         }
     );

@@ -4,6 +4,7 @@
 struct Secret {
     char *name;
     char *value;
+    char *username;
     struct Secret *next;
 };
 
@@ -28,7 +29,8 @@ char * getSecretName(struct SecretGetState *state);
 int addSecret(
         struct SecretGetState *state,
         char *name,
-        char *value
+        char *value,
+        char *username // NULLABLE
 );
 
 int choose(struct SecretGetState *state, int index);

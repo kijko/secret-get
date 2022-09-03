@@ -33,6 +33,7 @@ int cleanUp(struct SecretGetState *state) {
     SGLIB_LIST_MAP_ON_ELEMENTS(struct Secret, state->first, each, next, { 
         free(each->name);
         free(each->value);
+        free(each->username);
         free(each);
     });
 
@@ -79,7 +80,9 @@ char * getSecretName(struct SecretGetState *state) {
 int addSecret(
     struct SecretGetState *state,
     char *name,
-    char *value) {
+    char *value,
+    char *username
+) {
 
     struct Secret *elem = (struct Secret *) malloc(sizeof (struct Secret));
     if (elem == NULL) {
@@ -102,6 +105,13 @@ int addSecret(
         return 3;
     }
     
+    elem->username = (char *) malloc(sizeof(char) * COMMON_STRING_BUFFER_SIZE);
+    if ((elem->username) == NULL) {
+        printf("State::addSecret - cannot allocate memory for secret username");
+        
+        return 6;
+    }
+
     char *copyNameResult = strncpy(elem->name, name, COMMON_STRING_BUFFER_SIZE - 1);
     if (copyNameResult == NULL) {
         printf("State::addSecret - Cannot copy name");
@@ -116,6 +126,13 @@ int addSecret(
         return 5;
     }
 
+    char *notNullUsername = username == NULL ? "" : username;
+    char *copyUsernameResult = strncpy(elem->username, notNullUsername, COMMON_STRING_BUFFER_SIZE - 1);
+    if (copyUsernameResult == NULL) {
+        printf("State::addSecret - Cannot copy username");
+        
+        return 7;
+    }
 
     SGLIB_SORTED_LIST_ADD(struct Secret, state->first, elem, SECRET_LIST_CMP, next);
  
