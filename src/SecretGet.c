@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <regex.h>
+#include <string.h>
 
 #include "sglib.h"
 
@@ -9,11 +9,22 @@ int countSecrets(struct SecretGetState *state);
 int chooseFromMany(struct SecretGetState *state);
 int chooseFirst(struct SecretGetState *state);
 
-int isBlank(char *str) { // doesnt work
-    regex_t rg;
-    printf("str: %s\n", str);
+int isBlank(char *str) {
+    size_t len = strlen(str);
 
-    return regcomp(&rg, "/^(?!\\s+$).*/", 0) == 0 ? 1 : 0;
+    if (len == 0) {
+        return 1;
+    }
+    
+    for (size_t i = 0; i < len; i++) {
+        char c = str[i];
+
+        if (c != ' ') {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 int findSecret(struct SecretGetState *state) {
