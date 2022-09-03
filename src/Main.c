@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
         printf("Non-zero(%d) coping result. Exiting...\n", copyResult);
         
         return copyResult;
-    }
+    } else printf("Secret copied to clipboard\n");
+    
 
     cleanUp(state);
 

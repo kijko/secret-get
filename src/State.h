@@ -33,3 +33,5 @@ int addSecret(
 
 int choose(struct SecretGetState *state, int index);
 
+struct Secret *getChoosenSecret(struct SecretGetState *state);
+

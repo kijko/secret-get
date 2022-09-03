@@ -142,3 +142,25 @@ int choose(struct SecretGetState *state, int index) {
     return 0;
 }
 
+struct Secret *getChoosenSecret(struct SecretGetState *state) {
+    int choosenIndex = state->choosenIndex, i = 0;
+    
+    struct Secret *choosenSecret = NULL;
+    struct Secret *each;
+    SGLIB_LIST_MAP_ON_ELEMENTS(
+        struct Secret,
+        state->first,
+        each,
+        next,
+        { 
+            if (i == choosenIndex) {
+                choosenSecret = each; 
+            }
+
+            i++;
+        }
+    );
+    
+    return choosenSecret;
+}
+
