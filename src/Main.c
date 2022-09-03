@@ -115,26 +115,3 @@ static int parseOptions(int key, char *arg, struct argp_state *argpState) {
 }
 
 
-
-
-//    char *cmd = "bw list items --search google";    
-//    
-//    char buf[128];
-//    FILE *fp;
-//
-//    if ((fp = popen(cmd, "r")) == NULL) {
-//        printf("Error opening pipe!\n");
-//        return -1;
-//    }
-//
-//    while (fgets(buf, 128, fp) != NULL) {
-//        // Do whatever you want here...
-//        printf("OUTPUT: %s", buf);
-//    }
-//
-//    if (pclose(fp)) {
-//        printf("Command not found or exited with error status\n");
-//        return -1;
-//    }
-
-//    return 0;

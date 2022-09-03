@@ -1,9 +1,10 @@
 .RECIPEPREFIX = _
 
+APP_VER = 1-0-2
 
 PATHTARGET = build/target
 
-.DEFAULT_GOAL = $(PATHTARGET)/SecretGet
+.DEFAULT_GOAL = $(PATHTARGET)/SecretGet_$(APP_VER)
 
 ifeq ($(OS),Windows_NT)
   ifeq ($(shell uname -s),) # not in a bash-like shell
@@ -25,17 +26,28 @@ endif
 
 .PHONY: clean
 .PHONY: test
+.PHONY: install
+.PHONY: uninstall
 
 PROJECT_OBJ = $(PATHTARGET)/Main.o \
               $(PATHTARGET)/State.o \
               $(PATHTARGET)/SecretGet.o \
               $(PATHTARGET)/Bitwarden.o
 
+install: $(PATHTARGET)/SecretGet_$(APP_VER)
+_ sudo mkdir -p /opt/secret-get/$(APP_VER)
+_ sudo cp $(PATHTARGET)/SecretGet_$(APP_VER) /opt/secret-get/$(APP_VER)/exec
+_ sudo rm -f /usr/bin/srg
+_ sudo ln -s /opt/secret-get/$(APP_VER)/exec /usr/bin/srg
 
-$(PATHTARGET)/SecretGet : $(PROJECT_OBJ)
+uninstall: 
+_ sudo rm /usr/bin/srg
+_ sudo rm -fr /opt/secret-get
+
+$(PATHTARGET)/SecretGet_$(APP_VER) : $(PROJECT_OBJ)
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Linking...\n\n"
-_ gcc $(PROJECT_OBJ) -lyajl -o $(PATHTARGET)/SecretGet
+_ gcc $(PROJECT_OBJ) -lyajl -o $(PATHTARGET)/SecretGet_$(APP_VER)
 
 $(PATHTARGET)/Main.o : src/Main.c
 _ $(MKDIR) $(PATHTARGET)
