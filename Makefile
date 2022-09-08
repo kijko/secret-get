@@ -1,11 +1,5 @@
 .RECIPEPREFIX = _
 
-APP_VER = 1-0-2
-
-PATHTARGET = build/target
-
-.DEFAULT_GOAL = $(PATHTARGET)/SecretGet_$(APP_VER)
-
 ifeq ($(OS),Windows_NT)
   ifeq ($(shell uname -s),) # not in a bash-like shell
 	CLEANUP = del /F /Q
@@ -24,19 +18,25 @@ else
     PRINT = echo
 endif
 
+
+APP_VER = 1-0-2
+
+PATHTARGET = build/target
+OUT_NAME = SecretGet_$(APP_VER).$(TARGET_EXTENSION)
+OUT = $(PATHTARGET)/$(OUT_NAME)
+
+.DEFAULT_GOAL = $(OUT)
+
+
 .PHONY: clean
 .PHONY: test
 .PHONY: install
 .PHONY: uninstall
 
-PROJECT_OBJ = $(PATHTARGET)/Main.o \
-              $(PATHTARGET)/State.o \
-              $(PATHTARGET)/SecretGet.o \
-              $(PATHTARGET)/Bitwarden.o
 
-install: $(PATHTARGET)/SecretGet_$(APP_VER)
+install: $(OUT)
 _ sudo mkdir -p /opt/secret-get/$(APP_VER)
-_ sudo cp $(PATHTARGET)/SecretGet_$(APP_VER) /opt/secret-get/$(APP_VER)/exec
+_ sudo cp $(OUT) /opt/secret-get/$(APP_VER)/exec
 _ sudo rm -f /usr/bin/srg
 _ sudo ln -s /opt/secret-get/$(APP_VER)/exec /usr/bin/srg
 
@@ -44,30 +44,56 @@ uninstall:
 _ sudo rm /usr/bin/srg
 _ sudo rm -fr /opt/secret-get
 
-$(PATHTARGET)/SecretGet_$(APP_VER) : $(PROJECT_OBJ)
+MAIN_MODULE = Main
+MAIN_MODULE_SRC = src/$(MAIN_MODULE).c
+MAIN_MODULE_OBJ = $(PATHTARGET)/$(MAIN_MODULE).o
+
+$(MAIN_MODULE_OBJ) : $(MAIN_MODULE_SRC)
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling $(MAIN_MODULE)...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g $(MAIN_MODULE_SRC) -o $(MAIN_MODULE_OBJ)
+
+STATE_MODULE = State
+STATE_MODULE_SRC = src/$(STATE_MODULE).c
+STATE_MODULE_OBJ = $(PATHTARGET)/$(STATE_MODULE).o
+
+$(STATE_MODULE_OBJ) : $(STATE_MODULE_SRC)
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling $(STATE_MODULE)...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g $(STATE_MODULE_SRC) -o $(STATE_MODULE_OBJ)
+
+SECRET_GET_MODULE = SecretGet
+SECRET_GET_MODULE_SRC = src/$(SECRET_GET_MODULE).c
+SECRET_GET_MODULE_OBJ = $(PATHTARGET)/$(SECRET_GET_MODULE).o
+
+$(SECRET_GET_MODULE_OBJ) : $(SECRET_GET_MODULE_SRC)
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling $(SECRET_GET_MODULE)...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g $(SECRET_GET_MODULE_SRC) -o $(SECRET_GET_MODULE_OBJ)
+
+BITWARDEN_MODULE = Bitwarden
+BITWARDEN_MODULE_SRC = src/$(BITWARDEN_MODULE).c
+BITWARDEN_MODULE_OBJ = $(PATHTARGET)/$(BITWARDEN_MODULE).o
+
+$(BITWARDEN_MODULE_OBJ) : $(BITWARDEN_MODULE_SRC)
+_ $(MKDIR) $(PATHTARGET)
+_ $(PRINT) "Compiling $(BITWARDEN_MODULE)...\n\n"
+_ gcc -c -std=gnu17 -x c -Wextra -g $(BITWARDEN_MODULE_SRC) -o $(BITWARDEN_MODULE_OBJ)
+
+
+PROJECT_OBJ = $(MAIN_MODULE_OBJ) \
+    $(STATE_MODULE_OBJ) \
+    $(SECRET_GET_MODULE_OBJ) \
+    $(BITWARDEN_MODULE_OBJ)
+
+$(OUT) : $(PROJECT_OBJ)
 _ $(MKDIR) $(PATHTARGET)
 _ $(PRINT) "Linking...\n\n"
-_ gcc $(PROJECT_OBJ) -lyajl -o $(PATHTARGET)/SecretGet_$(APP_VER)
+_ gcc $(PROJECT_OBJ) -lyajl -o $(OUT)
 
-$(PATHTARGET)/Main.o : src/Main.c
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling Main...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g src/Main.c -o $(PATHTARGET)/Main.o
 
-$(PATHTARGET)/State.o : src/State.c
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling State...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g src/State.c -o $(PATHTARGET)/State.o
 
-$(PATHTARGET)/SecretGet.o : src/SecretGet.c
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling SecretGet...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g src/SecretGet.c -o $(PATHTARGET)/SecretGet.o
 
-$(PATHTARGET)/Bitwarden.o : src/Bitwarden.c
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling Bitwarden...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g src/Bitwarden.c -o $(PATHTARGET)/Bitwarden.o
 
 
 
