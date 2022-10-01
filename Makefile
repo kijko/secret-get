@@ -19,7 +19,7 @@ else
 endif
 
 
-APP_VER = 1-0-2
+APP_VER = 1-0-3
 
 PATHTARGET = build/target
 OUT_NAME = SecretGet_$(APP_VER).$(TARGET_EXTENSION)
@@ -32,6 +32,7 @@ OUT = $(PATHTARGET)/$(OUT_NAME)
 .PHONY: test
 .PHONY: install
 .PHONY: uninstall
+.PHONY: build
 
 
 install: $(OUT)
@@ -43,6 +44,8 @@ _ sudo ln -s /opt/secret-get/$(APP_VER)/exec /usr/bin/srg
 uninstall: 
 _ sudo rm /usr/bin/srg
 _ sudo rm -fr /opt/secret-get
+
+build: $(OUT)
 
 MAIN_MODULE = Main
 MAIN_MODULE_SRC = src/$(MAIN_MODULE).c

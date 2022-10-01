@@ -143,7 +143,7 @@ int copyToClipboard(struct SecretGetState *state) {
 
     char cmdBuff[160] = "\0";
         
-    char *cmd = strcat(strncat(strcat(cmdBuff, "echo \""), choosen->value, 128), "\" | xsel --clipboard --input");
+    char *cmd = strcat(strncat(strcat(cmdBuff, "echo \'"), choosen->value, 128), "\' | xsel --clipboard --input");
 
     FILE *fp;
     if ((fp = (FILE *) popen(cmd, "r")) == NULL) {
