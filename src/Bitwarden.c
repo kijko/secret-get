@@ -5,14 +5,20 @@
 #include "yajl/yajl_tree.h"
 
 #include "Bitwarden.h"
+#include "BitwardenList.h"
 
 #define BW_BUFFER_SIZE 4 * 1024
+
+//#if defined(__linux__)
+//
+//#elif defined(__WIN32__)
+//
+//#endif
 
 typedef struct { yajl_val *values; size_t len; } * YajlArray;
 typedef struct { const char **keys; yajl_val *values; size_t len;} * YajlObject;
 
 int parseAndAddToState(const char *json, struct SecretGetState *state);
-int bwList(char *buff, int buffSize, char *secretName);
 
 int searchInBitwarden(struct SecretGetState *state) {
     int returnCode = 0;
@@ -34,27 +40,6 @@ int searchInBitwarden(struct SecretGetState *state) {
     free(jsonStr);
 
     return returnCode;
-}
-
-int bwList(char *buff, int buffSize, char *secretName) {
-    char cmdBuff[160] = "\0";
-        
-    char *cmd = strncat(strcat(cmdBuff, "bw list items --search "), secretName, 128);
-    
-    FILE *fp;
-    if ((fp = (FILE *) popen(cmd, "r")) == NULL) {
-        printf("Error opening pipe!\n");
-        return 1;
-    }
-
-    while (fgets(buff, buffSize, fp) != NULL) {}
-
-    if (pclose(fp)) {
-        printf("Command not found or exited with error status\n");
-        return 2;
-    }
-
-    return 0;
 }
 
 
