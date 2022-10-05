@@ -1,0 +1,3 @@
+
+int copyToPlatformClipboard(char *text);
+
