@@ -1,14 +1,25 @@
 #include <stdio.h>
-#include <argp.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "sglib.h"
-
 #include "SecretGet.h"
+
+//#if defined(__linux__)
+//
+//#elif defined(__WIN32__)
+//
+//#endif
+
+extern char *optarg;
+extern int optind, opterr, optopt;
+extern int getopt(int argc, char * const argv[], const char *optstring);
 
 static struct SecretGetState *state;
 static int setStateDefaults();
-static int parseOptions(int key, char *arg, struct argp_state *state);
+
+static int interpretArgs(int argc, char **argv);
+static void printHelp(char *exeName);
 
 int main(int argc, char **argv) {
     state = init();
@@ -25,20 +36,15 @@ int main(int argc, char **argv) {
         return defaultResult;
     }
 
-    struct argp_option options[] = {
-         { "storage", 's', "ENUM", 0, "Choose storage. Supported: [BW, EL]. Default: BW", 0 },
-         { 0 }
-    };
-    struct argp argp = { options, parseOptions, "secretNameRegex", 0, 0, 0, 0 }; 
+    int interpretation = interpretArgs(argc, argv);
+    if (interpretation != 0 && interpretation != 112) {
+        printf("Non-zero(%d) status interpreting args\n", interpretation);       
 
-    int parseResult = argp_parse(&argp, argc, argv, 0, 0, 0);
-    
-    if (parseResult != 0) {
-        printf("Non-zero(%d) parse result. Exiting...\n", parseResult);
-
-        return parseResult;
+        return interpretation;
+    } else if (interpretation == 112) {
+        return 0;
     }
-    
+
     int searchResult;
     if ((searchResult = findSecret(state)) != 0) {
         if (searchResult == 5) {
@@ -72,46 +78,84 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+
+static int interpretArgs(int argc, char **argv) {
+    char *storage = "BW";
+    char *secretName = NULL;
+
+    int option;
+    while ((option = getopt(argc, argv, "s:h")) != -1) {
+        switch (option) {
+            case 's':
+                storage = optarg;
+
+                break;
+
+            case ':':
+                printf("Option '-%c' needs a value\n", optopt);
+                
+                break;
+
+            case 'h':
+                printHelp(argv[0]);
+
+                return 112;
+            case '?':
+                return 2;
+      }
+   }
+
+   for (; optind < argc; optind++) {
+        if (secretName == NULL) {
+            secretName = argv[optind];
+        }
+   }
+
+   if (secretName != NULL) {
+        
+        if (strcmp(storage, "BW") == 0) {
+            if (setStorage(state, STORAGE_BITWARDEN) != 0) {
+                printf("Error setting bitwarden as storage\n");
+                
+                return 10;
+            }    
+        } else if (strcmp(storage, "ELSE") == 0) {
+            if (setStorage(state, STORAGE_ELSE) != 0) {
+                printf("Error setting something else as storage\n");
+                
+                return 10;
+            }
+        } else {
+                fprintf(stderr, "Unknown storage: %s\n", storage);
+                
+                return 10;
+        }
+
+        if (setSecretName(state, secretName) != 0) {
+            printf("Error setting secret name regex\n");
+            
+            return 11;
+        }
+
+        return 0;
+   } else {
+        fprintf(stderr, "No secret name provided\n\n");
+        printHelp(argv[0]);
+
+        return 1;
+   }
+}
+
+static void printHelp(char *exeName) {
+    printf("Usage:\n");
+    printf("%s [options...] [secretName]\n\n", exeName);
+    printf("Args:\n");
+    printf("secretName -> Name of the secret for searching\n\n");
+    printf("Available options:\n");
+    printf("-s [storage] -> Switch between storages. Default: 'BW'. Available so far: 'BW', 'ELSE'\n");
+}
+
 static int setStateDefaults() {
     return setStorage(state, STORAGE_BITWARDEN);
 }
-
-static int parseOptions(int key, char *arg, struct argp_state *argpState) {
-    switch (key) {
-        case 0: {
-            if (setSecretName(state, arg) != 0) {
-                printf("Error setting secret name regex\n");
-                
-                return ARGP_KEY_ERROR;
-            }
-            break;
-        }
-        case 's': {
-            if (strcmp(arg, "BW") == 0) {
-                if (setStorage(state, STORAGE_BITWARDEN) != 0) {
-                    printf("Error setting bitwarden as storage");
-                    
-                    return ARGP_KEY_ERROR;
-                }
-            } else if (strcmp(arg, "EL") == 0) {
-                if (setStorage(state, STORAGE_ELSE) != 0) {
-                    printf("Error setting something else as storage");
-                    
-                    return ARGP_KEY_ERROR;
-                }
-            } else {
-                printf("Unknown storage: %s\n", arg);
-                
-                return ARGP_KEY_ERROR;
-            }
-            
-            break;
-        }
-
-        default: return ARGP_ERR_UNKNOWN;
-    }
-
-    return 0;
-}
-
 
