@@ -18,7 +18,6 @@ else
     PRINT = echo
 endif
 
-
 APP_VER = 1-1-0
 
 PATHTARGET = build/target
@@ -33,7 +32,10 @@ OUT = $(PATHTARGET)/$(OUT_NAME)
 .PHONY: install
 .PHONY: uninstall
 .PHONY: build
+.PHONY: build-win
 
+build-win:
+_ powershell -noprofile .\build.ps1
 
 install: $(OUT)
 _ sudo mkdir -p /opt/secret-get/$(APP_VER)
