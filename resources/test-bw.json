@@ -1,0 +1,42 @@
+[
+  {
+    "object": "item",
+    "id": "31da44d1-5ef5-4540-841e-add801602f76",
+    "organizationId": null,
+    "folderId": null,
+    "type": 1,
+    "reprompt": 0,
+    "name": "Google official",
+    "notes": null,
+    "favorite": false,
+    "login": {
+      "username": "username1",
+      "password": "password1",
+      "totp": null,
+      "passwordRevisionDate": null
+    },
+    "collectionIds": [],
+    "revisionDate": "2021-11-06T21:22:16.066Z",
+    "deletedDate": null
+  },
+  {
+    "object": "item",
+    "id": "c3bed220-2de0-4367-8c1a-ae4c015a2e4c",
+    "organizationId": null,
+    "folderId": null,
+    "type": 1,
+    "reprompt": 0,
+    "name": "WikiGoogle",
+    "notes": null,
+    "favorite": false,
+    "login": {
+      "username": "username2",
+      "password": "password2",
+      "totp": null,
+      "passwordRevisionDate": null
+    },
+    "collectionIds": [],
+    "revisionDate": "2022-03-02T21:00:24.350Z",
+    "deletedDate": null
+  }
+]
