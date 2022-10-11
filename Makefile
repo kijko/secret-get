@@ -1,7 +1,6 @@
 .RECIPEPREFIX = _
 
-# todo pass version using some gcc param
-version=1.1.0
+version=1.1.1
 
 
 #ifeq ($(OS),Windows_NT)
@@ -27,7 +26,7 @@ build_dir=build
 src_dir=src
 get_obj_path = $(build_dir)/$(1).o
 get_src_path = $(src_dir)/$(1).c
-compile = chmod +x ./compile.sh && ./compile.sh $(src_dir) $(build_dir) $(1)
+compile = chmod +x ./compile.sh && ./compile.sh $(src_dir) $(build_dir) $(1) $(version)
 
 main_module=Main
 $(call get_obj_path,$(main_module)) : $(call get_src_path,$(main_module))

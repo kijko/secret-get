@@ -11,6 +11,15 @@
 //
 //#endif
 
+#define QUOTE(name) #name
+#define STR(macro) QUOTE(macro)
+
+#ifndef SRG_VERSION
+#   define SRG_VERSION unknown
+#endif
+
+#define VER STR(SRG_VERSION)
+
 extern char *optarg;
 extern int optind, opterr, optopt;
 extern int getopt(int argc, char * const argv[], const char *optstring);
@@ -147,6 +156,7 @@ static int interpretArgs(int argc, char **argv) {
 }
 
 static void printHelp(char *exeName) {
+    printf("secret-get v. %s\n", VER);
     printf("Usage:\n");
     printf("%s [options...] [secretName]\n\n", exeName);
     printf("Args:\n");
