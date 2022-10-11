@@ -1,197 +1,91 @@
 .RECIPEPREFIX = _
 
-ifeq ($(OS),Windows_NT)
-  ifeq ($(shell uname -s),) # not in a bash-like shell
-	CLEANUP = del /F /Q
-	MKDIR = mkdir
-    PRINT = dont know
-  else # in a bash-like shell, like msys
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-    PRINT = echo
-  endif
-	TARGET_EXTENSION=exe
-else
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-	TARGET_EXTENSION=out
-    PRINT = echo
-endif
-
-APP_VER = 1-1-0
-
-PATHTARGET = build/target
-OUT_NAME = SecretGet_$(APP_VER).$(TARGET_EXTENSION)
-OUT = $(PATHTARGET)/$(OUT_NAME)
-
-.DEFAULT_GOAL = $(OUT)
+# todo pass version using some gcc param
+version=1.1.0
 
 
-.PHONY: clean
-.PHONY: test
+#ifeq ($(OS),Windows_NT)
+#  ifeq ($(shell uname -s),) # not in a bash-like shell
+#	CLEANUP = del /F /Q
+#	MKDIR = mkdir
+#    PRINT = dont know
+#  else # in a bash-like shell, like msys
+#	CLEANUP = rm -f
+#	MKDIR = mkdir -p
+#    PRINT = echo
+#  endif
+#	TARGET_EXTENSION=exe
+#else
+#	CLEANUP = rm -f
+#	MKDIR = mkdir -p
+#	TARGET_EXTENSION=out
+#    PRINT = echo
+#endif
+
+
+build_dir=build
+src_dir=src
+get_obj_path = $(build_dir)/$(1).o
+get_src_path = $(src_dir)/$(1).c
+compile = chmod +x ./compile.sh && ./compile.sh $(src_dir) $(build_dir) $(1)
+
+main_module=Main
+$(call get_obj_path,$(main_module)) : $(call get_src_path,$(main_module))
+_ $(call compile,$(main_module))
+
+state_module=State
+$(call get_obj_path,$(state_module)) : $(call get_src_path,$(state_module))
+_ $(call compile,$(state_module))
+
+secret_get_module=SecretGet
+$(call get_obj_path,$(secret_get_module)) : $(call get_src_path,$(secret_get_module))
+_ $(call compile,$(secret_get_module))
+
+bitwarden_module=Bitwarden
+$(call get_obj_path,$(bitwarden_module)) : $(call get_src_path,$(bitwarden_module))
+_ $(call compile,$(bitwarden_module))
+
+bitwarden_list_module=BitwardenList_linux
+$(call get_obj_path,$(bitwarden_list_module)) : $(call get_src_path,$(bitwarden_list_module))
+_ $(call compile,$(bitwarden_list_module))
+
+clipboard_module=Clipboard_linux
+$(call get_obj_path,$(clipboard_module)) : $(call get_src_path,$(clipboard_module))
+_ $(call compile,$(clipboard_module))
+
+all_modules=$(main_module) \
+            $(state_module) \
+            $(secret_get_module) \
+            $(bitwarden_module) \
+            $(bitwarden_list_module) \
+            $(clipboard_module)
+
+objects=$(foreach module,$(all_modules),$(call get_obj_path,$(module)))
+target=$(build_dir)/secret-get.$(version).out
+
+link=chmod +x ./link.sh && ./link.sh $(1) $(2)
+
+$(target) : $(objects)
+_ $(call link,$(target),$(objects))
+
+.DEFAULT_GOAL = $(target)
+
 .PHONY: install
 .PHONY: uninstall
-.PHONY: build
-.PHONY: build-win
+.PHONY: clean
 
+
+install_dir=/opt/secret-get
+install: $(target)
+_ chmod +x ./install.sh && ./install.sh $(target) $(version) $(install_dir)
+
+uninstall: 
+_ chmod +x ./uninstall.sh && ./uninstall.sh $(install_dir)
+
+clean:
+_ rm -fr build
+
+.PHONY: build-win
 build-win:
 _ powershell -noprofile .\build.ps1
 
-install: $(OUT)
-_ sudo mkdir -p /opt/secret-get/$(APP_VER)
-_ sudo cp $(OUT) /opt/secret-get/$(APP_VER)/exec
-_ sudo rm -f /usr/bin/srg
-_ sudo ln -s /opt/secret-get/$(APP_VER)/exec /usr/bin/srg
-
-uninstall: 
-_ sudo rm /usr/bin/srg
-_ sudo rm -fr /opt/secret-get
-
-build: $(OUT)
-
-MAIN_MODULE = Main
-MAIN_MODULE_SRC = src/$(MAIN_MODULE).c
-MAIN_MODULE_OBJ = $(PATHTARGET)/$(MAIN_MODULE).o
-
-$(MAIN_MODULE_OBJ) : $(MAIN_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(MAIN_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(MAIN_MODULE_SRC) -o $(MAIN_MODULE_OBJ)
-
-STATE_MODULE = State
-STATE_MODULE_SRC = src/$(STATE_MODULE).c
-STATE_MODULE_OBJ = $(PATHTARGET)/$(STATE_MODULE).o
-
-$(STATE_MODULE_OBJ) : $(STATE_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(STATE_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(STATE_MODULE_SRC) -o $(STATE_MODULE_OBJ)
-
-SECRET_GET_MODULE = SecretGet
-SECRET_GET_MODULE_SRC = src/$(SECRET_GET_MODULE).c
-SECRET_GET_MODULE_OBJ = $(PATHTARGET)/$(SECRET_GET_MODULE).o
-
-$(SECRET_GET_MODULE_OBJ) : $(SECRET_GET_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(SECRET_GET_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(SECRET_GET_MODULE_SRC) -o $(SECRET_GET_MODULE_OBJ)
-
-BITWARDEN_MODULE = Bitwarden
-BITWARDEN_MODULE_SRC = src/$(BITWARDEN_MODULE).c
-BITWARDEN_MODULE_OBJ = $(PATHTARGET)/$(BITWARDEN_MODULE).o
-
-$(BITWARDEN_MODULE_OBJ) : $(BITWARDEN_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(BITWARDEN_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(BITWARDEN_MODULE_SRC) -o $(BITWARDEN_MODULE_OBJ)
-
-BITWARDEN_LIST_MODULE = BitwardenList
-BITWARDEN_LIST_MODULE_PLATFORM = linux
-BITWARDEN_LIST_MODULE_SRC = src/$(BITWARDEN_LIST_MODULE)_$(BITWARDEN_LIST_MODULE_PLATFORM).c
-BITWARDEN_LIST_MODULE_OBJ = $(PATHTARGET)/$(BITWARDEN_LIST_MODULE).o
-
-$(BITWARDEN_LIST_MODULE_OBJ) : $(BITWARDEN_LIST_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(BITWARDEN_LIST_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(BITWARDEN_LIST_MODULE_SRC) -o $(BITWARDEN_LIST_MODULE_OBJ)
-
-CLIPBOARD_MODULE = Clipboard
-CLIPBOARD_MODULE_PLATFORM = linux
-CLIPBOARD_MODULE_SRC = src/$(CLIPBOARD_MODULE)_$(CLIPBOARD_MODULE_PLATFORM).c
-CLIPBOARD_MODULE_OBJ = $(PATHTARGET)/$(CLIPBOARD_MODULE).o
-
-$(CLIPBOARD_MODULE_OBJ) : $(CLIPBOARD_MODULE_SRC)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Compiling $(CLIPBOARD_MODULE)...\n\n"
-_ gcc -c -std=gnu17 -x c -Wextra -g $(CLIPBOARD_MODULE_SRC) -o $(CLIPBOARD_MODULE_OBJ)
-
-PROJECT_OBJ = $(MAIN_MODULE_OBJ) \
-    $(STATE_MODULE_OBJ) \
-    $(SECRET_GET_MODULE_OBJ) \
-    $(BITWARDEN_MODULE_OBJ) \
-    $(BITWARDEN_LIST_MODULE_OBJ) \
-    $(CLIPBOARD_MODULE_OBJ)
-
-$(OUT) : $(PROJECT_OBJ)
-_ $(MKDIR) $(PATHTARGET)
-_ $(PRINT) "Linking...\n\n"
-_ gcc $(PROJECT_OBJ) -lyajl -o $(OUT)
-
-
-
-
-
-
-
-PATHU = unity/src/
-PATHS = src/
-PATHT = test/
-PATHB = build/
-PATHD = build/depends/
-PATHO = build/objs/
-PATHR = build/results/
-
-BUILD_PATHS = $(PATHB) $(PATHD) $(PATHO) $(PATHR)
-
-SRCT = $(wildcard $(PATHT)*.c)
-
-COMPILE=gcc -c
-LINK=gcc
-DEPEND=gcc -MM -MG -MF
-CFLAGS=-I. -I$(PATHU) -I$(PATHS) -DTEST
-
-RESULTS = $(patsubst $(PATHT)Test%.c,$(PATHR)Test%.txt,$(SRCT) )
-
-PASSED = `grep -s PASS $(PATHR)*.txt`
-FAIL = `grep -s FAIL $(PATHR)*.txt`
-IGNORE = `grep -s IGNORE $(PATHR)*.txt`
-
-test: $(BUILD_PATHS) $(RESULTS)
-_ @echo "-----------------------\nIGNORES:\n-----------------------"
-_ @echo "$(IGNORE)"
-_ @echo "-----------------------\nFAILURES:\n-----------------------"
-_ @echo "$(FAIL)"
-_ @echo "-----------------------\nPASSED:\n-----------------------"
-_ @echo "$(PASSED)"
-_ @echo "\nDONE"
-
-$(PATHR)%.txt: $(PATHB)%.$(TARGET_EXTENSION)
-_ -./$< > $@ 2>&1
-
-$(PATHB)Test%.$(TARGET_EXTENSION): $(PATHO)Test%.o $(PATHO)%.o $(PATHO)unity.o #$(PATHD)Test%.d
-_ $(LINK) -o $@ $^
-
-$(PATHO)%.o:: $(PATHT)%.c
-_ $(COMPILE) $(CFLAGS) $< -o $@
-
-$(PATHO)%.o:: $(PATHS)%.c
-_ $(COMPILE) $(CFLAGS) $< -o $@
-
-$(PATHO)%.o:: $(PATHU)%.c $(PATHU)%.h
-_ $(COMPILE) $(CFLAGS) $< -o $@
-
-$(PATHD)%.d:: $(PATHT)%.c
-_ $(DEPEND) $@ $<
-
-$(PATHB):
-_ $(MKDIR) $(PATHB)
-
-$(PATHD):
-_ $(MKDIR) $(PATHD)
-
-$(PATHO):
-_ $(MKDIR) $(PATHO)
-
-$(PATHR):
-_ $(MKDIR) $(PATHR)
-
-clean:
-_ $(CLEANUP) $(PATHO)*.o
-_ $(CLEANUP) $(PATHB)*.$(TARGET_EXTENSION)
-_ $(CLEANUP) $(PATHR)*.txt
-_ $(CLEANUP) $(PATHTARGET)/*
-
-.PRECIOUS: $(PATHB)Test%.$(TARGET_EXTENSION)
-.PRECIOUS: $(PATHD)%.d
-.PRECIOUS: $(PATHO)%.o
-.PRECIOUS: $(PATHR)%.txt
