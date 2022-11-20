@@ -19,7 +19,7 @@ New-Item $BuildDir -ItemType "Directory" -Force
 
 Write-Host "Compiling $ModuleName"
 
-& $Compiler -c -std=c17 -x c -Wextra -g $VersionArg "$SrcDir\$ModuleName.c" -I $LibHeaders -o "$BuildDir\$ModuleName.o"
+& $Compiler -c -std=c17 -x c -Wextra "-Wno-cast-function-type" -g $VersionArg "$SrcDir\$ModuleName.c" -I $LibHeaders -o "$BuildDir\$ModuleName.o"
 
 if ($?) {
 	Write-Host "Done"
