@@ -1,6 +1,6 @@
 .RECIPEPREFIX = _
 
-version=1.1.1
+version=1.2.1
 
 ifeq ($(OS), Windows_NT)
     platform=win32

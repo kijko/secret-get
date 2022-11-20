@@ -27,7 +27,6 @@ int searchInBitwarden(struct SecretGetState *state) {
     
     int listResult = bwList(jsonStr, BW_BUFFER_SIZE, getSecretName(state));
     if (listResult == 0) {
-        //printf("debug - jsonStr: '%s'\n", jsonStr);
         int parseResult = parseAndAddToState(jsonStr, state);
         
         if (parseResult != 0) {
